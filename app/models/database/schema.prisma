@@ -1,0 +1,38 @@
+datasource db {
+  // could be postgresql or mysql
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+generator db {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+model Users {
+  id            String   @id @default(cuid())
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  email         String   @unique
+  password      String
+  avatar        String?
+  address       String
+  private_key   String
+  dob           String
+  country       String?
+  city          String?
+  assets        Assets[]
+}
+
+model Assets {
+  id            String   @id @default(cuid())
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  acreage       Float
+  pictrue       Json
+  metadata      Json
+  certificate   Json
+  owner_id      String
+  owner         Users    @relation(fields: [owner_id], references: [id])
+}
