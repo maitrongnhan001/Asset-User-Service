@@ -3,22 +3,31 @@ import secrets
 from fastapi import APIRouter
 from ..models import users
 from ..helpers import responseDto
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 import bcrypt
 from pydantic import BaseModel
+from ..auth import auth_bearer
+from ..helpers import jwtHelper
 
 router = APIRouter()
 
 class UserController(BaseModel):
-    email: str
-    password: str
-    dob: str
+    email       : str
+    password    : str
+    dob         : str
 
 class UserLoginController(BaseModel):
-    email: str
-    password: str
+    email       : str
+    password    : str
 
-@router.post("/users/register", tags=["create user"])
+class UserUpdateController(BaseModel): 
+    password    : str = None
+    avatar      : str = None
+    dob         : str = None
+    country     : str = None
+    city        : str = None
+
+@router.post("/users/register", tags=["Create user"])
 async def CreateUser(userData: UserController):
     # Generate user wallet
     priv = secrets.token_hex(32)
@@ -65,3 +74,25 @@ async def ListUsers(
 async def Login(userLoginController: UserLoginController):
     userLogin = await users.Login(userLoginController.email, userLoginController.password)
     return responseDto.ResponseDTO(200, "Login successfully", userLogin)
+
+
+@router.get("/users/me", tags=["Get my information"])
+async def GetMe(token: str = Depends(auth_bearer.JWTBearer())):
+    payload = jwtHelper.decodeJWT(token)
+
+    user = await users.GetMe(payload.id)
+
+    return responseDto.ResponseDTO(200, "Get user information successfully", user)
+
+@router.put("/users/update", tags=["Update user"])
+async def UpdateUser(userUpdateController: UserUpdateController, token: str = Depends(auth_bearer.JWTBearer())):
+    payload = jwtHelper.decodeJWT(token)
+    userUpdated = await users.UpdateUser(
+        payload.id,
+        userUpdateController.password,
+        userUpdateController.avatar,
+        userUpdateController.dob,
+        userUpdateController.country,
+        userUpdateController.city,
+    )
+    return responseDto.ResponseDTO(200, "Update user successfully", userUpdated)

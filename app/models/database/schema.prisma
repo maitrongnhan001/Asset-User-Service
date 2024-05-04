@@ -1,7 +1,7 @@
 datasource db {
-  // could be postgresql or mysql
+  // could be postgresql
   provider = "postgres"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://mtnhan:supermtnhan@postgres-dev.azura.ink:5432/asset-project?schema=public"
 }
 
 generator db {
@@ -29,8 +29,10 @@ model Assets {
   id            String   @id @default(cuid())
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
-  acreage       Float
-  pictrue       Json
+  isMine        Boolean
+  tokenId       String?   @unique
+  picture       Json
+  price         Float
   metadata      Json
   certificate   Json
   owner_id      String
