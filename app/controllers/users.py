@@ -58,10 +58,10 @@ async def CreateUser(userData: UserController):
 
 @router.get("/users/", tags=["List users"])
 async def ListUsers(
-    skip: int = 0, 
-    limit: int = 10,
-    field: str = None,
-    value: str = None
+    skip    : int = 0, 
+    limit   : int = 10,
+    field   : str = None,
+    value   : str = None
 ):
     listUsers = await users.ListUsers(skip, limit, field, value)
     

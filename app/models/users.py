@@ -11,18 +11,18 @@ JWT_SECRET      = config("JWT_SECRET_KEY")
 JWT_ALGORITHM   = config("JWT_ALGORITHM")
 
 class User:
-    email: str
-    password: str
-    dob: str
-    address: str
-    private_key: str
+    email           : str
+    password        : str
+    dob             : str
+    address         : str
+    private_key     : str
 
     def __init__(self, email, password, dob, address, private_key):
-        self.email = email
-        self.password = password
-        self.dob = dob
-        self.address = address
-        self.private_key = private_key
+        self.email          = email
+        self.password       = password
+        self.dob            = dob
+        self.address        = address
+        self.private_key    = private_key
 
 async def CreateUser (user: User):
     try:
@@ -45,10 +45,10 @@ async def CreateUser (user: User):
     return result
     
 async def ListUsers(
-    skip: int = 0, 
-    limit: int = 10,
-    field: str = None,
-    value: str = None
+    skip    : int = 0, 
+    limit   : int = 10,
+    field   : str = None,
+    value   : str = None
 ): 
     try:
         db = Prisma()
@@ -78,10 +78,10 @@ async def ListUsers(
             return {key: value for key, value in user if key != "password"}
 
         return {
-            "list": list(map(UserView, listUsers)),
-            "limit": limit,
-            "skip": skip,
-            "total": total
+            "list"      : list(map(UserView, listUsers)),
+            "limit"     : limit,
+            "skip"      : skip,
+            "total"     : total
         }
     except ZeroDivisionError:
         print("Error: Division by zero is not allowed!")

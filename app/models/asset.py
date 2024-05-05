@@ -2,6 +2,7 @@ from ..services import Asset
 from prisma import Prisma
 from fastapi.encoders import jsonable_encoder
 from decouple import config
+from fastapi import HTTPException
 
 APPLICATION_URL = config("APPLICATION_URL")
 
@@ -54,10 +55,78 @@ async def CreateAnAsset(
         result = asset
     except ZeroDivisionError:
         print("Error: Division by zero is not allowed!")
+        raise HTTPException(status_code=500, detail="Failed to create asset")
         result = False
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Failed to create asset")
         result = False
     finally:
         print("This block always executes, regardless of whether an exception occurred or not.")
     return result
+
+async def ListAssets(
+    skip    : int = 0, 
+    limit   : int = 10,
+    field   : str = None,
+    value   : str = None
+):
+    try:
+        db = Prisma()
+        await db.connect()
+        listAssets = []
+        total = 0
+        if (field):
+            whereObj = {
+                field: value
+            }
+            listAssets = await db.assets.find_many(
+                take=limit, 
+                skip=skip, 
+                where=whereObj
+            )
+            total = await db.assets.count(where=whereObj)
+        else:
+            listAssets = await db.assets.find_many(
+                take=limit, 
+                skip=skip
+            )
+            total = await db.users.count()
+
+        await db.disconnect()
+
+        return {
+            "list"      : listAssets,
+            "limit"     : limit,
+            "skip"      : skip,
+            "total"     : total
+        }
+    except ZeroDivisionError:
+        print("Error: Division by zero is not allowed!")
+        raise HTTPException(status_code=500, detail="Failed to list asset")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Failed to list asset")
+    finally:
+        print("This block always executes, regardless of whether an exception occurred or not.")
+
+async def GetAsset(
+    id: str
+):
+    try:
+        db = Prisma()
+        await db.connect()
+        
+        asset = await db.assets.find_unique(where={"id": id})
+
+        await db.disconnect()
+
+        return asset
+    except ZeroDivisionError:
+        print("Error: Division by zero is not allowed!")
+        raise HTTPException(status_code=500, detail="Failed to get asset")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get asset")
+    finally:
+        print("This block always executes, regardless of whether an exception occurred or not.")
