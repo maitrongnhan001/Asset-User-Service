@@ -1,7 +1,7 @@
 datasource db {
   // could be postgresql
   provider = "postgres"
-  url      = "postgresql://mtnhan:supermtnhan@postgres-dev.azura.ink:5432/asset-project?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 generator db {
